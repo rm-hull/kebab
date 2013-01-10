@@ -7,13 +7,11 @@ import play.api.libs.json._
 import play.api.libs.concurrent._
 import play.api.Play.current
 
-import Execution.Implicits.defaultContext
-
 object Application extends Controller {
 
   def index = TODO
 
-  def route(path: String) = Action { request =>
+  def route(host: String, path: String) = Action { request =>
     Ok(request.toString)
   }
 }
