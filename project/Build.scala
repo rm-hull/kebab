@@ -9,6 +9,7 @@ object ApplicationBuild extends Build {
 
     val appDependencies = Seq(
       // Add your project dependencies here,
+      "com.ning" % "async-http-client" % "1.7.10"
     )
 
     val main = play.Project(appName, appVersion, appDependencies).settings(

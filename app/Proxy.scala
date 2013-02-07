@@ -22,8 +22,6 @@ import com.ning.http.client.{
 
 object Proxy extends Controller {
 
-  val TIMEOUT = Duration(30, SECONDS)
-
   def route = Action { request =>
 
     val future = forward(request).orTimeout("waiting for: " + request.uri, 30, SECONDS)
@@ -36,19 +34,28 @@ object Proxy extends Controller {
     //Ok.stream(rawData(request.uri))
   }
 
-  private def forward(request: RequestHeader) = {
-    WS.url(request.uri).execute(request.method)
-  }
+  private def forward(request: RequestHeader) =
+    WS.url(request.uri) // + path + queryString
+      .withHeaders(scrub(request.headers).toArray:_*)
+      .execute(request.method)
+
+  val allowedHeaders = Set("Accept","Accept-Encoding","Accept-Language","Cache-Control","Cookie",/*"Host",*/"If-Modified-Since","If-None-Match")
+
+  private def scrub(headers: Headers) =
+    allowedHeaders.flatMap { k =>
+      headers.get(k).map { v => (k -> v) }
+    }
 
   private def streamFrom[A](uri: String)(consumer: ResponseHeaders => Iteratee[Array[Byte], A]) = {
      WS.url(uri).get(consumer)
   }
 
-  private def rawData(uri: String) = new Enumerator[Array[Byte]] {
-    def apply[A](iteratee: Iteratee[Array[Byte], A]) = {
-      streamFrom(uri) { headers => iteratee }
+  private def rawData(uri: String) =
+    new Enumerator[Array[Byte]] {
+      def apply[A](iteratee: Iteratee[Array[Byte], A]) = {
+        streamFrom(uri) { headers => iteratee }
+      }
     }
-  }
 
   private def convert(response: play.api.libs.ws.Response) = {
     val data = response.ahcResponse.getResponseBodyAsStream
