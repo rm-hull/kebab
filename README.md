@@ -24,3 +24,7 @@ References
 * https://panopticlick.eff.org/
 
 * http://www.privoxy.org/
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/rm-hull/kebab/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
